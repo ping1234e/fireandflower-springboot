@@ -1,9 +1,8 @@
-package com.tencent.wxcloudrun.service;
+package com.tencent.wxcloudrun.demo.service;
 
-import com.tencent.wxcloudrun.model.Counter;
+import com.tencent.wxcloudrun.demo.model.Counter;
 
 import java.util.Optional;
-import java.util.List;
 
 public interface CounterService {
 
