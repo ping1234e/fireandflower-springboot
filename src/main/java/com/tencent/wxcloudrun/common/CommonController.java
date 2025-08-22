@@ -30,6 +30,7 @@ public class CommonController {
         payload.put("msgtype","text");
         payload.put("text","{'content':"+request.getString("Content")+"}");
         try {
+            log.error("回复消息,{}", JSONObject.toJSONString(payload));
             HttpUtils.doPost("http://api.weixin.qq.com", "/cgi-bin/message/custom/send", null, null, payload);
         } catch (Exception e) {
             log.error("回复消息失败{}",e.getMessage());
