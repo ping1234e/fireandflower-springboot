@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CommonController {
     @PostMapping("/msg/rece")
     public ApiResponse getMsg(@RequestBody JSONObject request) {
-        log.error("getMsg", request.toString());
+        log.error("getMsg,{}", request.toString());
         return ApiResponse.ok();
     }
 }
