@@ -3,6 +3,7 @@ package com.tencent.wxcloudrun.common;
 import com.alibaba.fastjson.JSONObject;
 import com.tencent.wxcloudrun.config.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpResponse;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,6 +37,21 @@ public class CommonController {
             log.error("回复消息失败{}",e.getMessage());
             return ApiResponse.error("回复消息失败");
         }
-        return ApiResponse.ok();
+        return ApiResponse.ok(payload);
+    }
+
+    public static void main(String[] args) {
+        Map<String,Object> payload = new HashMap<>(16);
+        payload.put("FromUserName","gh_d17c82863523");
+        payload.put("ToUserName","oe9UKt6zlWd9hHk8S79ggqXJsqpY");
+        payload.put("msgtype","text");
+        payload.put("text","{'content':"+"ccccc"+"}");
+        try {
+            log.error("回复消息,{}", JSONObject.toJSONString(payload));
+            HttpResponse response = HttpUtils.doPost("http://api.weixin.qq.com", "/cgi-bin/message/custom/send", null, null, payload);
+            System.out.println(response);
+        } catch (Exception e) {
+            log.error("回复消息失败{}",e.getMessage());
+        }
     }
 }
