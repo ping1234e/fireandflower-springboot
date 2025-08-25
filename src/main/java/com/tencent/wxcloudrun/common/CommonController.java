@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,32 +27,41 @@ public class CommonController {
         Map<String, Object> payload = new HashMap<>(16);
         payload.put("FromUserName", request.getString("ToUserName"));
         payload.put("ToUserName", request.getString("FromUserName"));
-        payload.put("CreateTime", LocalDateTime.now().getSecond());
+        payload.put("CreateTime", LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")));
         payload.put("MsgType", "text");
         if (content.contains("学企来")) {
             String[] split = content.split(":");
-            String account = split[1];
-            String password = split[2];
-            String accessToken = split[3];
-            String ddmm = split[4];
-            String ww = split[5];
-            if (StringUtils.isAnyBlank(account, password)) {
-                // 回复使用格式
-                // 学企来:account:password:accessToken:ddmm:ww
-                // 说明
-                // 账号密码为八三管理平台密码，
-                // accessToken为pushplus的授权码，可以接受推送结果，非必填
-                // ddmm，运行时间，浮动上下一两分钟，如0934表示在早上09:33-09:35之间运行
-                // ww表示周一到周日,如1-7表示周一到周日
+            if (split.length <= 1) {
                 payload.put("Content", "启动格式->'学企来:account:password:accessToken:ddmm:ww',输入一次就可以了，如果没成功可以再试试\n" +
                         "  ——>账号密码为八三管理平台密码\n" +
                         "  ——>accessToken为pushplus的授权码，可以接受推送结果，非必填\n" +
                         "  ——>ddmm，运行时间，浮动上下一两分钟，如0934表示在早上09:33-09:35之间运行\n" +
-                        "  ——> ww表示周一到周日,如1-7表示周一到周日");
+                        "  ——>ww表示周一到周日,如1-7表示周一到周日");
             } else {
-                // 加入处理表
-                payload.put("Content", "加入成功");
+                String account = split[1];
+                String password = split[2];
+                String accessToken = split[3];
+                String ddmm = split[4];
+                String ww = split[5];
+                if (StringUtils.isAnyBlank(account, password)) {
+                    // 回复使用格式
+                    // 学企来:account:password:accessToken:ddmm:ww
+                    // 说明
+                    // 账号密码为八三管理平台密码，
+                    // accessToken为pushplus的授权码，可以接受推送结果，非必填
+                    // ddmm，运行时间，浮动上下一两分钟，如0934表示在早上09:33-09:35之间运行
+                    // ww表示周一到周日,如1-7表示周一到周日
+                    payload.put("Content", "启动格式->'学企来:account:password:accessToken:ddmm:ww',输入一次就可以了，如果没成功可以再试试\n" +
+                            "  ——>账号密码为八三管理平台密码\n" +
+                            "  ——>accessToken为pushplus的授权码，可以接受推送结果，非必填\n" +
+                            "  ——>ddmm，运行时间，浮动上下一两分钟，如0934表示在早上09:33-09:35之间运行\n" +
+                            "  ——> ww表示周一到周日,如1-7表示周一到周日");
+                } else {
+                    // 加入处理表
+                    payload.put("Content", "加入成功");
+                }
             }
+
         }
         try {
             log.error("回复消息,{}", JSONObject.toJSONString(payload));
