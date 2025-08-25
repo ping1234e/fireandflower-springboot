@@ -3,11 +3,12 @@ package com.tencent.wxcloudrun.common;
 import com.alibaba.fastjson.JSONObject;
 import com.tencent.wxcloudrun.config.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,40 +19,43 @@ public class CommonController {
     public ApiResponse getMsg(@RequestBody JSONObject request) {
         log.error("getMsg,{}", request.toString());
         // {"Content":"1","CreateTime":1755854772,"ToUserName":"gh_d17c82863523","FromUserName":"oe9UKt6zlWd9hHk8S79ggqXJsqpY","MsgType":"text","MsgId":25137798904747621}
-        String url = "http://api.weixin.qq.com/cgi-bin/message/custom/send";
-//const payload = {
-//                touser: headers['x-wx-openid'],
-//                msgtype: 'text',
-//                text: {
-//            content: `云托管接收消息推送成功，内容如下：\n${JSON.stringify(req.body, null, 2)}`
-//        }
-//    }
-        Map<String,Object> payload = new HashMap<>(16);
-        payload.put("touser",request.getString("FromUserName"));
-        payload.put("msgtype","text");
-        payload.put("text","{'content':"+request.getString("Content")+"}");
+        String content = request.getString("Content");
+        if (StringUtils.isBlank(content)) {
+            return ApiResponse.error("消息为空");
+        }
+        if (content.contains("学企来")) {
+            String[] split = content.split(":");
+            String account = split[1];
+            String password = split[2];
+            String accessToken = split[3];
+            String ddmm = split[4];
+            String ww = split[5];
+            if (StringUtils.isAnyBlank(account, password)) {
+                // 回复使用格式
+                // 学企来:account:password:accessToken:ddmm:ww
+                // 说明
+                // 账号密码为八三管理平台密码，
+                // accessToken为pushplus的授权码，可以接受推送结果，非必填
+                // ddmm，运行时间，浮动上下一两分钟，如0934表示在早上09:33-09:35之间运行
+                // ww表示周一到周日,如1-7表示周一到周日
+            } else {
+                // 加入处理表
+            }
+        }
+        Map<String, Object> payload = new HashMap<>(16);
+        payload.put("FromUserName", request.getString("ToUserName"));
+        payload.put("ToUserName", request.getString("FromUserName"));
+        payload.put("CreateTime", LocalDateTime.now().getSecond());
+        payload.put("MsgType", "text");
+        payload.put("Content", "{'content':" + request.getString("Content") + "}");
         try {
             log.error("回复消息,{}", JSONObject.toJSONString(payload));
             HttpUtils.doPost("http://api.weixin.qq.com", "/cgi-bin/message/custom/send", null, null, payload);
         } catch (Exception e) {
-            log.error("回复消息失败{}",e.getMessage());
+            log.error("回复消息失败{}", e.getMessage());
             return ApiResponse.error("回复消息失败");
         }
+        payload.put("Content", "测试接口返回值会不会触发回复！！" + request.getString("FromUserName"));
         return ApiResponse.ok(payload);
-    }
-
-    public static void main(String[] args) {
-        Map<String,Object> payload = new HashMap<>(16);
-        payload.put("FromUserName","gh_d17c82863523");
-        payload.put("ToUserName","oe9UKt6zlWd9hHk8S79ggqXJsqpY");
-        payload.put("msgtype","text");
-        payload.put("text","{'content':"+"ccccc"+"}");
-        try {
-            log.error("回复消息,{}", JSONObject.toJSONString(payload));
-            HttpResponse response = HttpUtils.doPost("http://api.weixin.qq.com", "/cgi-bin/message/custom/send", null, null, payload);
-            System.out.println(response);
-        } catch (Exception e) {
-            log.error("回复消息失败{}",e.getMessage());
-        }
     }
 }
