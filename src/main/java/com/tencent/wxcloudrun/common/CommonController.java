@@ -66,7 +66,7 @@ public class CommonController {
         try {
             log.error("回复消息,{}", JSONObject.toJSONString(payload));
             // 被动回复
-            //HttpUtils.doPost("http://api.weixin.qq.com", "/cgi-bin/message/custom/send", null, null, payload);
+            HttpUtils.doPost("http://api.weixin.qq.com", "/cgi-bin/message/custom/send", null, null, payload);
         } catch (Exception e) {
             log.error("回复消息失败{}", e.getMessage());
             return ApiResponse.error("回复消息失败");
