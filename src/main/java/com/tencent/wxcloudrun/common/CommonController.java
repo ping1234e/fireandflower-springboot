@@ -4,8 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.tencent.wxcloudrun.config.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,7 +23,7 @@ import java.util.Map;
 public class CommonController {
     @PostMapping("/msg/rece")
     public ApiResponse getMsg(@RequestBody JSONObject jsonObject, HttpServletRequest request) {
-        log.error("getMsg,{}", jsonObject.toString());
+        log.error("getMsg,{},{}", jsonObject.toString(), JSONObject.toJSONString(request));
         // {"Content":"1","CreateTime":1755854772,"ToUserName":"gh_d17c82863523","FromUserName":"oe9UKt6zlWd9hHk8S79ggqXJsqpY","MsgType":"text","MsgId":25137798904747621}
         String content = jsonObject.getString("Content");
         if (StringUtils.isBlank(content)) {
