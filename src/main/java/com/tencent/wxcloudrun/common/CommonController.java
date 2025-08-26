@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -23,19 +24,14 @@ import java.util.Map;
 @Slf4j
 public class CommonController {
     @PostMapping("/msg/rece")
-    public ApiResponse getMsg(@RequestBody JSONObject jsonObject, HttpRequest request) {
+    public ApiResponse getMsg(@RequestBody JSONObject jsonObject, HttpServletRequest request) {
         log.error("getMsg,{}", jsonObject.toString());
         // {"Content":"1","CreateTime":1755854772,"ToUserName":"gh_d17c82863523","FromUserName":"oe9UKt6zlWd9hHk8S79ggqXJsqpY","MsgType":"text","MsgId":25137798904747621}
         String content = jsonObject.getString("Content");
         if (StringUtils.isBlank(content)) {
             return ApiResponse.error("消息为空");
         }
-
-        Header[] headers = request.getHeaders("X-WX-CLOUDBASE-ACCESS-TOKEN");
-        if (headers == null || headers.length < 1) {
-            return ApiResponse.error("未获取到请求头");
-        }
-        String value = headers[0].getValue();
+        String value = request.getHeader("X-WX-CLOUDBASE-ACCESS-TOKEN");
         if (StringUtils.isBlank(value)) {
             return ApiResponse.error("未获取到请求头");
         }
@@ -82,6 +78,8 @@ public class CommonController {
             log.error("回复消息,{}", JSONObject.toJSONString(payload));
             // 被动回复
             HttpResponse response = HttpUtils.doPost("http://api.weixin.qq.com", "/cgi-bin/message/custom/send?cloudbase_access_token=" + value, null, null, payload);
+
+            log.error("回复消息结果码{}", response.getStatusLine().getStatusCode());
             try (InputStream content1 = response.getEntity().getContent()) {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(content1));
                 String line;
