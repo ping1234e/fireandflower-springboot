@@ -23,8 +23,10 @@ import java.util.Map;
 public class CommonController {
     @PostMapping("/msg/rece")
     public ApiResponse getMsg(@RequestBody JSONObject jsonObject, HttpServletRequest request) {
-        log.error("getMsg,{},{}", jsonObject.toString(), JSONObject.toJSONString(request));
-        // {"Content":"1","CreateTime":1755854772,"ToUserName":"gh_d17c82863523","FromUserName":"oe9UKt6zlWd9hHk8S79ggqXJsqpY","MsgType":"text","MsgId":25137798904747621}
+        log.error("getMsg,{},{},{}", jsonObject.toString(), request.getHeader("X-WX-CLOUDBASE-ACCESS-TOKEN"),
+                request.getHeader("X-WX-FROM-CLOUDBASE-ACCESS-TOKEN"));
+        // {"Content":"1","CreateTime":1755854772,"ToUserName":"gh_d17c82863523",
+        // "FromUserName":"oe9UKt6zlWd9hHk8S79ggqXJsqpY","MsgType":"text","MsgId":25137798904747621}
         String content = jsonObject.getString("Content");
         if (StringUtils.isBlank(content)) {
             return ApiResponse.error("消息为空");
